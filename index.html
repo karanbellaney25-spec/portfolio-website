@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karan Bellaney | 3D Generalist & AI Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+        }
+        /* Subtle fade-in animation for elements */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Custom scrollbar to match Behance dark mode */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+        
+        /* Hide scrollbar for the sliders but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Project Card Transition & Perspective */
+        .project-card {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        .carousel-container {
+            transform-style: preserve-3d;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        /* ── Header-specific styles ── */
+        .header-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(4.5rem, 11vw, 9rem);
+            line-height: 0.88;
+            letter-spacing: 0.01em;
+            color: #e8e4dd;
+        }
+        .header-name .ghost {
+            color: rgba(232,228,221,0.15);
+        }
+        .accent-gold { color: #b4a064; }
+        .accent-line-v {
+            position: absolute;
+            top: 0; left: 4rem;
+            width: 1px; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(180,160,100,0.25) 40%, rgba(180,160,100,0.08) 100%);
+        }
+        .accent-dot {
+            position: absolute;
+            top: 3.4rem; left: calc(4rem - 3px);
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #b4a064;
+        }
+        .grid-overlay {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+        }
+        .eyebrow-tag {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 10.5px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #b4a064;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .eyebrow-tag::before {
+            content: '';
+            display: inline-block;
+            width: 2rem; height: 1px;
+            background: #b4a064;
+        }
+        .bio-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: rgba(232,228,221,0.45);
+            font-weight: 300;
+            border-left: 1px solid rgba(180,160,100,0.3);
+            padding-left: 1.25rem;
+            max-width: 38ch;
+        }
+        .bio-text strong {
+            color: rgba(232,228,221,0.75);
+            font-weight: 400;
+        }
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.7rem;
+        }
+        .contact-list a {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            color: rgba(232,228,221,0.35);
+            text-decoration: none;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+        .contact-list a:hover { color: #b4a064; }
+        .contact-list a::after { content: '↗'; font-size: 9px; opacity: 0.5; }
+        .disciplines-col {
+            position: absolute;
+            top: 50%; right: 4rem;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            text-align: right;
+        }
+        .disciplines-col span {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(232,228,221,0.17);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        .disciplines-col span::before {
+            content: '';
+            display: inline-block;
+            width: 1rem; height: 1px;
+            background: rgba(232,228,221,0.12);
+        }
+        
+        /* ── Floating Top Navigation and Award Pill Formatting ── */
+        .top-nav {
+            position: fixed; 
+            top: 2rem;
+            right: 4rem;
+            display: flex;
+            gap: 1.5rem;
+            z-index: 100; 
+            background: rgba(18, 18, 18, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0.6rem 1.5rem;
+            border-radius: 100px;
+            border: 1px solid rgba(180, 160, 100, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .top-nav a {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(232,228,221,0.75);
+            text-decoration: none;
+            transition: color 0.2s;
+            padding: 0.2rem;
+            cursor: pointer;
+        }
+        .top-nav a:hover { color: #b4a064; }
+
+        .award-pill-container {
+            position: absolute;
+            z-index: 40;
+            display: flex;
+            justify-content: center;
+            top: 3rem;
+            left: 0;
+            right: 0;
+            pointer-events: none; 
+        }
+        .award-pill {
+            pointer-events: auto; 
+            font-family: 'DM Sans', sans-serif;
+            font-size: 9.5px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(180,160,100,0.55);
+            border: 1px solid rgba(180,160,100,0.18);
+            padding: 0.35rem 0.85rem;
+            border-radius: 2rem;
+            white-space: nowrap;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2.5rem; left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .scroll-indicator span {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 8.5px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(232,228,221,0.18);
+        }
+        .scroll-line {
+            width: 1px; height: 1.8rem;
+            background: linear-gradient(to bottom, rgba(180,160,100,0.4), transparent);
+            animation: scrollPulse 1.8s ease-in-out infinite;
+        }
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(0.5); transform-origin: top; }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
+        /* ── Mobile Layout Fixes ── */
+        @media (max-width: 768px) {
+            .accent-line-v, .accent-dot { left: 1.5rem; }
+            .disciplines-col { display: none; }
+            .header-name { font-size: clamp(3.5rem, 16vw, 5rem); }
+            .contact-list { align-items: flex-start; }
+            
+            .top-nav {
+                top: 1rem;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                width: max-content;
+                gap: 1.25rem;
+                padding: 0.5rem 1.25rem;
+            }
+            .award-pill-container {
+                top: 5rem;
+            }
+            .header-content-wrapper {
+                margin-top: 3rem; 
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-500 selection:text-white bg-[#0a0a0a]">
+
+    <!-- Fixed Top Navigation (Always on top) -->
+    <nav class="top-nav">
+        <a href="#projects">Work</a>
+        <a href="#top">About</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <main id="top" class="w-full max-w-[1440px] mx-auto bg-[#121212] min-h-screen overflow-hidden relative shadow-2xl shadow-black border-x border-neutral-900">
+
+        <!-- ================= HEADER (REDESIGNED) ================= -->
+        <header class="relative min-h-screen flex flex-col justify-end px-5 md:px-16 pb-16 fade-in border-b border-neutral-800 overflow-hidden"
+                style="padding-left: 4rem; padding-right: 4rem; padding-bottom: 4rem;">
+
+            <!-- Background video (Autoplay is safely triggered via JS at the bottom) -->
+            <video id="hero-video" loop muted playsinline
+                   class="absolute inset-0 w-full h-full object-cover z-0 opacity-90 pointer-events-none" poster="still.jpg">
+                <source src="Breakdown_compressed.webm" type="video/webm">
+                <source src="Breakdown_compressed.mp4" type="video/mp4">
+            </video>
+
+            <!-- Adjusted Gradient overlay — lighter at top so video is bright, darker at bottom for text -->
+            <div class="absolute inset-0 z-0 pointer-events-none"
+                 style="background: linear-gradient(to bottom, rgba(18,18,18,0.1) 0%, rgba(18,18,18,0.3) 50%, rgba(18,18,18,0.97) 85%, #121212 100%);"></div>
+
+            <!-- Grid texture -->
+            <div class="grid-overlay z-0 opacity-50"></div>
+
+            <!-- Vertical gold rule -->
+            <div class="accent-line-v z-10"></div>
+            <div class="accent-dot z-10"></div>
+
+            <!-- Award pill — top centre -->
+            <div class="award-pill-container">
+                <span class="award-pill bg-[#0a0a0a]/50 backdrop-blur-sm">🥉 Bronze · 24FPS International Awards · Best CG Lighting</span>
+            </div>
+
+            <!-- Disciplines column — mid right -->
+            <div class="disciplines-col z-20">
+                <span>Modelling &amp; Sculpting</span>
+                <span>Look Development</span>
+                <span>FX Simulation</span>
+                <span>Environment Design</span>
+                <span>AI Visualization</span>
+            </div>
+
+            <!-- Main content — stacked bottom-left -->
+            <div class="relative z-20 header-content-wrapper pl-0 md:pl-4">
+                <div class="eyebrow-tag mb-2" style="font-size:13px;">3D Environment, FX &amp; AI Visualizer</div>
+                <div class="eyebrow-tag mb-5" style="color:rgba(232,228,221,0.28);font-size:11px;letter-spacing:0.18em;">Houdini &nbsp;·&nbsp; Unreal Engine &nbsp;·&nbsp; Maya &nbsp;·&nbsp; ComfyUI &nbsp;·&nbsp; Veo</div>
+
+                <h1 class="header-name mb-10">
+                    Karan<br>Bellaney
+                </h1>
+
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:3rem;flex-wrap:wrap;">
+                    <p class="bio-text" style="font-size:14px;">
+                        Mumbai based artist specialising in <strong>procedural workflows, environment creation, 
+                        look development, and AI visualization.</strong> Delivering top tier assets, FX simulations, 
+                        and generative media across the full production pipeline.
+                    </p>
+
+                    <div class="contact-list">
+                        <a href="mailto:karanbellaney@gmail.com">karanbellaney@gmail.com</a>
+                        <a href="https://linkedin.com/in/karanbellaney" target="_blank">LinkedIn</a>
+                        <a href="https://karanbellaney.artstation.com" target="_blank">ArtStation</a>
+                        
+                        <a href="https://wa.me/918850123992" target="_blank" style="display:flex;align-items:center;gap:0.5rem;">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="rgba(232,228,221,0.35)" style="flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scroll hint -->
+            <div class="scroll-indicator z-20">
+                <div class="scroll-line"></div>
+                <span>Scroll</span>
+            </div>
+        </header>
+
+        <!-- ================= RESUME SECTION ================= -->
+        <section class="py-12 md:py-16 px-5 md:px-16 bg-[#0f0f0f] fade-in border-b border-neutral-800">
+            <div class="max-w-6xl mx-auto">
+                
+                <div class="grid md:grid-cols-2 gap-12 md:gap-16 mb-12 md:mb-16">
+                    <!-- Left Column: Experience -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-white uppercase tracking-widest mb-8 flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-blue-500"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> 
+                            Experience
+                        </h3>
+                        
+                        <div class="mb-10 relative pl-6 border-l-2 border-neutral-800">
+                            <div class="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-1.5"></div>
+                            <h4 class="text-white font-bold text-lg">Freelance 3D Modeler</h4>
+                            <p class="text-blue-400 text-sm font-medium mb-3">Dharmatic Entertainment <span class="text-neutral-500">· Film Production</span></p>
+                            <ul class="text-neutral-400 text-sm space-y-2 list-disc list-inside">
+                                <li>Delivered detailed hero assets and main props using Maya, ZBrush, and Houdini.</li>
+                                <li>Collaborated with designers to refine visual concepts and ensure project alignment.</li>
+                                <li>Adjusted 3D models based on creative and technical feedback to meet production standards.</li>
+                            </ul>
+                            
+                            <!-- Interactive Thumbnails Gallery -->
+                            <div class="mt-4 flex gap-3 flex-wrap">
+                                <!-- Thumb 1 -->
+                                <div class="relative group cursor-crosshair">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50">
+                                        <img src="v1_2.png" alt="Dharmatic Prop 1" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.src='https://via.placeholder.com/150/1a1a1a/444444?text=1'">
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full left-0 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom-left">
+                                        <img src="v1_2.png" alt="Dharmatic Prop 1 Full" class="w-full h-auto bg-neutral-900" onerror="this.src='https://via.placeholder.com/600/1a1a1a/444444?text=Prop+1+Render'">
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">Viewport Render 01</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Thumb 2 -->
+                                <div class="relative group cursor-crosshair">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50">
+                                        <img src="v2_2.png" alt="Dharmatic Prop 2" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.src='https://via.placeholder.com/150/1a1a1a/444444?text=2'">
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom">
+                                        <img src="v2_2.png" alt="Dharmatic Prop 2 Full" class="w-full h-auto bg-neutral-900" onerror="this.src='https://via.placeholder.com/600/1a1a1a/444444?text=Prop+2+Render'">
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">Viewport Render 02</div>
+                                    </div>
+                                </div>
+
+                                <!-- Thumb 3 -->
+                                <div class="relative group cursor-crosshair">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50">
+                                        <img src="v3_3.png" alt="Dharmatic Prop 3" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.src='https://via.placeholder.com/150/1a1a1a/444444?text=3'">
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom">
+                                        <img src="v3_3.png" alt="Dharmatic Prop 3 Full" class="w-full h-auto bg-neutral-900" onerror="this.src='https://via.placeholder.com/600/1a1a1a/444444?text=Prop+3+Render'">
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">Viewport Render 03</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-6 border-l-2 border-neutral-800">
+                            <div class="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-1.5"></div>
+                            <h4 class="text-white font-bold text-lg">Freelance 3D Modeler</h4>
+                            <p class="text-blue-400 text-sm font-medium mb-3">D2R Films <span class="text-neutral-500">· Netflix Series</span></p>
+                            <ul class="text-neutral-400 text-sm space-y-2 list-disc list-inside">
+                                <li>Created optimized, production ready 3D assets using Maya, ZBrush, and Houdini.</li>
+                                <li>Defined asset requirements with clients and organized assets to streamline workflow.</li>
+                                <li>Communicated updates directly and incorporated reviews efficiently.</li>
+                            </ul>
+                            
+                            <!-- Interactive Thumbnails Gallery -->
+                            <div class="mt-4 flex gap-3 flex-wrap">
+                                <!-- Thumb 1 -->
+                                <div class="relative group cursor-crosshair">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50">
+                                        <img src="viewport_01.jpg" alt="Dharmatic Prop 1" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.src='https://via.placeholder.com/150/1a1a1a/444444?text=1'">
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full left-0 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom-left">
+                                        <img src="viewport_01.jpg" alt="Dharmatic Prop 1 Full" class="w-full h-auto bg-neutral-900" onerror="this.src='https://via.placeholder.com/600/1a1a1a/444444?text=Prop+1+Render'">
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">Viewport Render 01</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Thumb 2 -->
+                                <div class="relative group cursor-crosshair">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50">
+                                        <img src="viewport_02.jpg" alt="Dharmatic Prop 2" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.src='https://via.placeholder.com/150/1a1a1a/444444?text=2'">
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom">
+                                        <img src="viewport_02.jpg" alt="Dharmatic Prop 2 Full" class="w-full h-auto bg-neutral-900" onerror="this.src='https://via.placeholder.com/600/1a1a1a/444444?text=Prop+2+Render'">
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">Viewport Render 02</div>
+                                    </div>
+                                </div>
+
+                                <!-- Thumb 3 -->
+                                <div class="relative group cursor-crosshair">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50">
+                                        <img src="viewport_03.jpg" alt="Dharmatic Prop 3" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.src='https://via.placeholder.com/150/1a1a1a/444444?text=3'">
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom">
+                                        <img src="viewport_03.jpg" alt="Dharmatic Prop 3 Full" class="w-full h-auto bg-neutral-900" onerror="this.src='https://via.placeholder.com/600/1a1a1a/444444?text=Prop+3+Render'">
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">Viewport Render 03</div>
+                                    </div>
+                                </div>
+
+                                <!-- Thumb 4 (3D Printed Prop Video) -->
+                                <div class="relative group cursor-crosshair video-thumb-container">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50 relative flex items-center justify-center">
+                                        <!-- Removed inline script hooks, replaced with class logic -->
+                                        <video src="3D_printed_prop.mp4" muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity"></video>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white z-10 drop-shadow-md relative"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom">
+                                        <video src="3D_printed_prop.mp4" loop muted playsinline class="w-full h-auto bg-neutral-900"></video>
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">3D Printed Prop Demo</div>
+                                    </div>
+                                </div>
+
+                                <!-- Thumb 5 (Embosing Video) -->
+                                <div class="relative group cursor-crosshair video-thumb-container">
+                                    <div class="w-16 h-12 rounded bg-neutral-800 overflow-hidden border border-neutral-700 transition-all duration-300 group-hover:ring-2 group-hover:ring-blue-500/50 relative flex items-center justify-center">
+                                        <!-- Removed inline script hooks, replaced with class logic -->
+                                        <video src="embosing.mp4" muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity"></video>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white z-10 drop-shadow-md relative"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    </div>
+                                    <!-- Hover Expansion -->
+                                    <div class="absolute bottom-full right-0 mb-3 w-64 rounded-xl shadow-2xl border border-neutral-700 overflow-hidden opacity-0 pointer-events-none translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50 origin-bottom-right">
+                                        <video src="embosing.mp4" loop muted playsinline class="w-full h-auto bg-neutral-900"></video>
+                                        <div class="p-2 bg-neutral-900 text-xs text-neutral-300 text-center border-t border-neutral-800">Embossing Breakdown</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Education & Awards -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-white uppercase tracking-widest mb-8 flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-yellow-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                            Education
+                        </h3>
+                        
+                        <div class="mb-8 relative pl-6 border-l-2 border-neutral-800">
+                            <div class="absolute w-3 h-3 bg-yellow-500 rounded-full -left-[7px] top-1.5"></div>
+                            <h4 class="text-white font-bold text-lg">Advanced VFX & 3D</h4>
+                            <p class="text-yellow-400 text-sm font-medium mb-1">MAAC · Maya Academy of Advanced Creativity</p>
+                            <p class="text-neutral-500 text-xs tracking-wider">2021 to 2025</p>
+                        </div>
+
+                        <div class="mb-12 relative pl-6 border-l-2 border-neutral-800">
+                            <div class="absolute w-3 h-3 bg-yellow-500 rounded-full -left-[7px] top-1.5"></div>
+                            <h4 class="text-white font-bold text-lg">Commerce</h4>
+                            <p class="text-yellow-400 text-sm font-medium mb-1">K.C. College</p>
+                            <p class="text-neutral-500 text-xs tracking-wider">2018 to 2020</p>
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-white uppercase tracking-widest mb-8 flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-emerald-500"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg> 
+                            Awards & Certifications
+                        </h3>
+
+                        <div class="mb-6 bg-neutral-900/50 p-4 rounded-xl border border-neutral-800 flex items-start gap-4">
+                            <div class="p-2 bg-emerald-500/10 rounded text-emerald-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7c0 6 3 7 6 7s6-1 6-7Z"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold">Bronze · Best CG Lighting (Solo)</h4>
+                                <p class="text-emerald-400 text-xs font-medium mt-1">24FPS International Awards <span class="text-neutral-500 ml-2">Dec 2023</span></p>
+                            </div>
+                        </div>
+
+                        <div class="bg-neutral-900/50 p-4 rounded-xl border border-neutral-800 flex items-start gap-4">
+                            <div class="p-2 bg-emerald-500/10 rounded text-emerald-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22h6a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M5 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M7 16.5 8 22l-3-1-3 1 1-5.5"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold">Course Completion Certificate</h4>
+                                <p class="text-emerald-400 text-xs font-medium mt-1">MAAC (Grade A) <span class="text-neutral-500 ml-2">Dec 2025</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Skills & Software -->
+                <div class="pt-10 border-t border-neutral-800">
+                    <h3 class="text-xs md:text-sm font-bold text-neutral-500 uppercase tracking-widest mb-4">Core Skills</h3>
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Modelling & Texturing</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">UV Unwrapping</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Lighting & Shading</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Look Development</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">FX & Particle Simulations</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Procedural Systems</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Generative AI</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">AI Visualization</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Rendering</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Matchmove</span>
+                        <span class="px-3 py-1 bg-neutral-900 border border-neutral-800 rounded text-neutral-300 text-sm">Compositing</span>
+                    </div>
+
+                    <h3 class="text-xs md:text-sm font-bold text-neutral-500 uppercase tracking-widest mb-4">Software Proficiency</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Maya</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Houdini</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Unreal Engine</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">ComfyUI</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Veo</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Substance Painter</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Nuke</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">ZBrush</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Arnold</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">3ds Max</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Unity</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Photoshop</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">After Effects</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">Premiere Pro</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">PFTrack</span>
+                        <span class="px-3 py-1 bg-neutral-800 text-white rounded font-medium text-sm">3D Equalizer</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= PORTFOLIO SECTION ================= -->
+        <div id="projects" class="sticky top-0 z-50 flex justify-center py-4 md:py-6 px-4 bg-[#121212]/90 backdrop-blur-md border-y border-neutral-800/50 fade-in visible">
+            <div class="flex items-center gap-2 p-1.5 bg-[#0a0a0a] border border-neutral-800 rounded-full shadow-lg overflow-x-auto no-scrollbar max-w-full">
+                <button data-filter="all" class="filter-btn active px-5 md:px-6 py-2 text-white bg-neutral-800 rounded-full text-xs md:text-sm font-semibold tracking-wide transition-all whitespace-nowrap">All Projects</button>
+                <button data-filter="maya" class="filter-btn px-5 md:px-6 py-2 text-neutral-400 hover:text-white rounded-full text-xs md:text-sm font-semibold tracking-wide transition-all whitespace-nowrap">Maya</button>
+                <button data-filter="houdini" class="filter-btn px-5 md:px-6 py-2 text-neutral-400 hover:text-white rounded-full text-xs md:text-sm font-semibold tracking-wide transition-all whitespace-nowrap">Houdini</button>
+                <button data-filter="unreal" class="filter-btn px-5 md:px-6 py-2 text-neutral-400 hover:text-white rounded-full text-xs md:text-sm font-semibold tracking-wide transition-all whitespace-nowrap">Unreal</button>
+                <button data-filter="ai" class="filter-btn px-5 md:px-6 py-2 text-neutral-400 hover:text-white rounded-full text-xs md:text-sm font-semibold tracking-wide transition-all whitespace-nowrap">AI Visualizer</button>
+            </div>
+        </div>
+
+        <!-- PROJECT 01: THE HUNTER'S HIDEOUT -->
+        <section class="py-12 md:py-16 fade-in project-card" data-category="maya">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-blue-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <div class="flex items-center gap-3 mb-2">
+                        <p class="text-blue-500 font-bold tracking-widest text-xs">PROJECT 01</p>
+                        <span style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:linear-gradient(90deg,rgba(180,160,100,0.15),rgba(180,160,100,0.05));border:1px solid rgba(180,160,100,0.35);color:#b4a064;padding:3px 10px;border-radius:2rem;">🥉 24FPS Award · Best CG Lighting</span>
+                    </div>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">The Hunter's Hideout</h3>
+                    <p style="font-size:11px;color:rgba(232,228,221,0.3);letter-spacing:0.08em;margin-top:5px;font-family:'DM Sans',sans-serif;">The piece that took home bronze.</p>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> Maya</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> Modeling, Lighting, LookDev</p>
+                </div>
+            </div>
+
+            <div class="carousel-container relative w-full group bg-[#0a0a0a]">
+                <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                        <video poster="karan-bellaney-comp-beauty (1).jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
+                            <source data-src="24Fps_2023_compressed.webm" type="video/webm">
+                            <source data-src="24Fps_2023_compressed.mp4" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover/video:opacity-0">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 text-white shadow-2xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 w-6 h-6 md:w-7 md:h-7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Project Breakdown & Lighting (Hover to Play)</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="karan-bellaney-comp-beauty (1).jpg" alt="Day Beauty" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Lighting Setup: Day / Golden Hour</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="karan-bellaney-beauty-comp.jpg" alt="Night Beauty" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Lighting Setup: Night / Moonlight</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="karan-bellaney-ambient-occ.jpg" alt="Ambient Occlusion" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Pass: Ambient Occlusion / Clay</figcaption>
+                    </figure>
+                </div>
+                <button class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button class="next-btn absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <div class="dots-container absolute top-4 right-4 md:right-6 flex gap-2">
+                    <button class="dot w-2 h-2 rounded-full bg-white transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                </div>
+            </div>
+            
+            <div class="px-5 md:px-16 mt-6 md:mt-8 max-w-3xl">
+                <p class="text-neutral-400 text-sm leading-relaxed">
+                    The project that earned a <span style="color:#b4a064;font-weight:500;">Bronze at the 24FPS International Awards 2023 for Best CG Lighting</span> competing against other solo artists. Modelled entirely from scratch in Maya. Two distinct cinematic lighting setups, golden hour and moonlight, each crafted to tell a different story within the same space.
+                </p>
+            </div>
+        </section>
+
+        <!-- PROJECT 02: ABANDONED MEMORIES -->
+        <section class="py-12 md:py-16 fade-in bg-[#0f0f0f] project-card" data-category="maya">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-emerald-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-emerald-500 font-bold tracking-widest text-xs mb-1 md:mb-2">PROJECT 02</p>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">Abandoned Memories</h3>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> Maya</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> Modeling, Texturing, LookDev, Lighting</p>
+                </div>
+            </div>
+
+            <div class="carousel-container relative w-full group bg-[#0a0a0a]">
+                <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                        <video poster="beauty.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
+                            <source data-src="24Fps_2024_compressed.webm" type="video/webm">
+                            <source data-src="24Fps_2024_compressed.mp4" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover/video:opacity-0">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 text-white shadow-2xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 w-6 h-6 md:w-7 md:h-7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Project Breakdown & Lighting (Hover to Play)</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="beauty.jpg" alt="Day Scene" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Lighting Setup: Volumetric Sunrays</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="Night_beauty.jpg" alt="Night Scene" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Lighting Setup: Cinematic Night</figcaption>
+                    </figure>
+                </div>
+                <button class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button class="next-btn absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <div class="dots-container absolute top-4 right-4 md:right-6 flex gap-2">
+                    <button class="dot w-2 h-2 rounded-full bg-white transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                </div>
+            </div>
+            
+            <div class="px-5 md:px-16 mt-6 md:mt-8 max-w-3xl">
+                <p class="text-neutral-400 text-sm leading-relaxed">
+                    An exercise in environmental storytelling and atmospheric lighting. I modelled and textured everything in this scene entirely from scratch using Maya. Focused on conveying a sense of deep decay and neglect, utilizing complex volumetric scattering to achieve dramatic god rays and an eerie night sequence.
+                </p>
+            </div>
+        </section>
+
+        <!-- PROJECT 03: ALLEY WAY -->
+        <section class="py-12 md:py-16 fade-in project-card" data-category="unreal">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-orange-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-orange-500 font-bold tracking-widest text-xs mb-1 md:mb-2">PROJECT 03</p>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">Alley Way</h3>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> Unreal Engine</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> Environment Modeling, Lighting, LookDev</p>
+                </div>
+            </div>
+
+            <div class="carousel-container relative w-full group bg-[#0a0a0a]">
+                <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                        <video poster="still_SS_3.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
+                            <source data-src="02_3_compressed.webm" type="video/webm">
+                            <source data-src="02_3_compressed.mp4" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover/video:opacity-0">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 text-white shadow-2xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 w-6 h-6 md:w-7 md:h-7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Alley Way Flythrough (Hover to Play)</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="still_SS_3.jpg" alt="Alley Way Render" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Alley Way | Unreal Engine</figcaption>
+                    </figure>
+                </div>
+                <button class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button class="next-btn absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <div class="dots-container absolute top-4 right-4 md:right-6 flex gap-2">
+                    <button class="dot w-2 h-2 rounded-full bg-white transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                </div>
+            </div>
+            
+            <div class="px-5 md:px-16 mt-6 md:mt-8 max-w-3xl">
+                <p class="text-neutral-400 text-sm leading-relaxed">
+                    Detailed exterior alleyway environment optimized for real time rendering natively within Unreal Engine. Set up sun-drenched lighting and intricate material details to capture the warmth and character of a vibrant, lived-in street.
+                </p>
+            </div>
+        </section>
+
+        <!-- PROJECT 04: PROCEDURAL FOREST -->
+        <section class="py-12 md:py-16 fade-in bg-[#0f0f0f] project-card" data-category="houdini">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-yellow-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-yellow-500 font-bold tracking-widest text-xs mb-1 md:mb-2">PROJECT 04</p>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">Procedural Forest</h3>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> Houdini</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> Procedural Generation, LookDev</p>
+                </div>
+            </div>
+
+            <div class="carousel-container relative w-full group bg-[#0a0a0a]">
+                <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                        <video poster="still.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
+                            <source data-src="Breakdown_compressed.webm" type="video/webm">
+                            <source data-src="Breakdown_compressed.mp4" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover/video:opacity-0">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 text-white shadow-2xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 w-6 h-6 md:w-7 md:h-7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Procedural Forest Breakdown (Hover to Play)</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="still.jpg" alt="Procedural Forest Render" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Procedural Forest | Karma & USD Solaris</figcaption>
+                    </figure>
+                </div>
+                <button class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button class="next-btn absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <div class="dots-container absolute top-4 right-4 md:right-6 flex gap-2">
+                    <button class="dot w-2 h-2 rounded-full bg-white transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                </div>
+            </div>
+            
+            <div class="px-5 md:px-16 mt-6 md:mt-8 max-w-3xl">
+                <p class="text-neutral-400 text-sm leading-relaxed">
+                    Fully procedural environment generated completely within Houdini. Utilizing a USD Solaris workflow for robust and scalable scene assembly. Rendered natively with Karma, focusing on realistic lighting, volumetric scattering, and dense instancing of foliage.
+                </p>
+            </div>
+        </section>
+
+        <!-- PROJECT 05: RIVER GRASSLANDS -->
+        <section class="py-12 md:py-16 fade-in project-card" data-category="houdini">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-yellow-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-yellow-500 font-bold tracking-widest text-xs mb-1 md:mb-2">PROJECT 05</p>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">River Grasslands</h3>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> Houdini</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> Procedural Generation, LookDev</p>
+                </div>
+            </div>
+
+            <div class="carousel-container relative w-full group bg-[#0a0a0a]">
+                <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                        <video poster="H_grasslands_still.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
+                            <source data-src="200_compressed.webm" type="video/webm">
+                            <source data-src="200_compressed.mp4" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover/video:opacity-0">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 text-white shadow-2xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 w-6 h-6 md:w-7 md:h-7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Procedural Grasslands Animation (Hover to Play)</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="H_grasslands_still.jpg" alt="Grasslands Render" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Procedural Grasslands | Karma & USD Solaris</figcaption>
+                    </figure>
+                </div>
+                <button class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button class="next-btn absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <div class="dots-container absolute top-4 right-4 md:right-6 flex gap-2">
+                    <button class="dot w-2 h-2 rounded-full bg-white transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                </div>
+            </div>
+            
+            <div class="px-5 md:px-16 mt-6 md:mt-8 max-w-3xl">
+                <p class="text-neutral-400 text-sm leading-relaxed">
+                    A procedural river and grassland ecosystem created entirely in Houdini. Setup utilizing USD Solaris for efficient layout and shading, and rendered natively with Karma.
+                </p>
+            </div>
+        </section>
+
+        <!-- PROJECT 06: UNREAL ENGINE -->
+        <section class="py-12 md:py-16 fade-in bg-[#0f0f0f] project-card" data-category="unreal">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-orange-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-orange-500 font-bold tracking-widest text-xs mb-1 md:mb-2">PROJECT 06</p>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">Real-Time Interior Environment</h3>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> Unreal Engine</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> Environment Modeling, LookDev, Lighting</p>
+                </div>
+            </div>
+
+            <div class="carousel-container relative w-full group bg-[#0a0a0a]">
+                <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                        <video poster="04.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
+                            <source data-src="01_1_compressed.webm" type="video/webm">
+                            <source data-src="01_1_compressed.mp4" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover/video:opacity-0">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 text-white shadow-2xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 w-6 h-6 md:w-7 md:h-7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Interior Flythrough (Hover to Play)</figcaption>
+                    </figure>
+                    <figure class="w-full flex-none snap-center relative aspect-video">
+                        <img src="04.jpg" alt="Unreal Engine Interior Render" class="w-full h-full object-contain block bg-[#0a0a0a]" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/444444?text=Image+not+found'">
+                        <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Real-Time Interior | Unreal Engine</figcaption>
+                    </figure>
+                </div>
+                <button class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button class="next-btn absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-white text-white hover:text-black w-10 h-10 hidden md:flex items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <div class="dots-container absolute top-4 right-4 md:right-6 flex gap-2">
+                    <button class="dot w-2 h-2 rounded-full bg-white transition-all shadow-lg"></button>
+                    <button class="dot w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all shadow-lg"></button>
+                </div>
+            </div>
+            
+            <div class="px-5 md:px-16 mt-6 md:mt-8 max-w-3xl">
+                <p class="text-neutral-400 text-sm leading-relaxed">
+                    Fully detailed interior environment modeled from scratch and optimized for real time rendering natively within Unreal Engine. Managed scene lighting setups to achieve realistic light interaction and a warm atmospheric desert view.
+                </p>
+            </div>
+        </section>
+
+        <!-- PROJECT 07: PROCEDURAL HONEY COMMERCIAL -->
+        <section class="py-12 md:py-16 fade-in project-card" data-category="houdini">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-purple-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-purple-500 font-bold tracking-widest text-xs mb-1 md:mb-2">PROJECT 07</p>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">Procedural Honey Commercial</h3>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> Houdini</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> Procedural Modeling, FX Simulation, LookDev</p>
+                </div>
+            </div>
+
+            <div class="w-full bg-[#0a0a0a]">
+                <figure class="w-full relative aspect-video group/video cursor-pointer">
+                    <video preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
+                        <source data-src="R_comp_01_compressed.webm" type="video/webm">
+                        <source data-src="R_comp_01_compressed.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover/video:opacity-0">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 text-white shadow-2xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 w-6 h-6 md:w-7 md:h-7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                    </div>
+                    <figcaption class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 text-[10px] md:text-xs text-neutral-300 rounded backdrop-blur-sm">Procedural Honey FLIP Simulation (Hover to Play)</figcaption>
+                </figure>
+            </div>
+            
+            <div class="px-5 md:px-16 mt-6 md:mt-8 max-w-3xl">
+                <p class="text-neutral-400 text-sm leading-relaxed">
+                    Everything procedural, start to finish. I created the procedural modeling of the honeycomb structure directly in Houdini. A high resolution viscous FLIP simulation drives the honey pour, with custom shading built around accurate subsurface scattering and glass refraction. Final comp done to hit advertising grade polish.
+                </p>
+            </div>
+        </section>
+
+        <!-- PROJECT 08: AI VISUALIZATIONS -->
+        <section class="py-12 md:py-16 fade-in bg-[#0f0f0f] project-card hidden" data-category="ai" style="display: none;">
+            <div class="px-5 md:px-16 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-l-4 border-cyan-500 pl-4 md:pl-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-cyan-500 font-bold tracking-widest text-xs mb-1 md:mb-2">PROJECT 08</p>
+                    <h3 class="text-2xl md:text-4xl font-bold text-white uppercase tracking-tight">Generative AI Visualizations</h3>
+                </div>
+                <div class="mt-2 md:mt-0 text-left md:text-right">
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Software:</strong> ComfyUI, Veo</p>
+                    <p class="text-neutral-400 text-xs md:text-sm"><strong class="text-neutral-200">Role:</strong> AI Generation, Video Synthesis</p>
+                </div>
+            </div>
+
+            <div class="w-full h-[50vh] min-h-[400px] bg-gradient-to-br from-neutral-900 to-black flex flex-col items-center justify-center border-y border-neutral-800 relative overflow-hidden">
+                <!-- Abstract AI Background effect -->
+                <div class="absolute inset-0 opacity-20" style="background: radial-gradient(circle at center, rgba(6, 182, 212, 0.4) 0%, transparent 60%);"></div>
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 text-cyan-700 mb-4 relative z-10"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><path d="M16 2l1.5 3L22 6.5 17.5 8 16 11l-1.5-3L10 6.5 14.5 5 16 2z"/></svg>
+                <p class="text-neutral-400 font-medium tracking-widest uppercase relative z-10">AI Visualizer Projects in Development</p>
+                <p class="text-neutral-500 text-sm mt-3 max-w-lg text-center px-4 relative z-10">Currently exploring the intersection of traditional 3D workflows and cutting edge generative AI. Upcoming works feature AI driven video synthesis using Veo and complex node based generation pipelines in ComfyUI.</p>
+            </div>
+        </section>
+
+        <!-- ================= CONTACT SECTION ================= -->
+        <section id="contact" class="py-20 md:py-24 px-5 md:px-16 bg-[#0a0a0a] fade-in border-t border-neutral-800">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-8 md:mb-12 text-center tracking-tight">Let's <span class="text-cyan-500">talk!</span></h2>
+                
+                <form action="#" method="POST" data-netlify="true" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2 text-center">Name</label>
+                            <input type="text" id="name" name="name" placeholder="ex. Erling Thomson" required class="w-full bg-[#121212] border border-neutral-800 rounded-xl px-5 py-4 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500/50 transition-colors text-center md:text-left">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2 text-center">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="name@gmail.com" required class="w-full bg-[#121212] border border-neutral-800 rounded-xl px-5 py-4 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500/50 transition-colors text-center md:text-left">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="company" class="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2 text-center">Company size</label>
+                        <select id="company" name="company" class="w-full bg-[#121212] border border-neutral-800 rounded-xl px-5 py-4 text-neutral-400 focus:outline-none focus:border-cyan-500/50 transition-colors appearance-none text-center cursor-pointer">
+                            <option value="" disabled selected>Select size</option>
+                            <option value="1-10">1-10 employees</option>
+                            <option value="11-50">11-50 employees</option>
+                            <option value="51-200">51-200 employees</option>
+                            <option value="201+">201+ employees</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="message" class="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2 text-center">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Write your message here" required class="w-full bg-[#121212] border border-neutral-800 rounded-xl px-5 py-4 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-500/50 transition-colors resize-none text-center md:text-left"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-[#0f1f2a] hover:bg-[#152e40] border border-cyan-900/50 hover:border-cyan-500/50 text-cyan-500 py-4 rounded-xl font-bold tracking-widest uppercase transition-all duration-300">
+                        Send
+                    </button>
+                </form>
+
+                <div class="flex flex-col items-center justify-center gap-4 mt-8">
+                    <p class="text-center text-neutral-400 text-sm md:text-base font-medium m-0">
+                        Or simply email me directly at <a href="mailto:karanbellaney@gmail.com" class="text-white hover:text-cyan-400 underline decoration-neutral-700 underline-offset-4 transition-colors break-all">karanbellaney@gmail.com</a>
+                    </p>
+                    <a href="https://wa.me/918850123992" target="_blank" class="flex items-center gap-2 text-neutral-400 hover:text-[#25D366] transition-colors text-sm md:text-base font-medium group">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="group-hover:fill-[#25D366] transition-colors" style="flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        Message on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-12 md:py-16 text-center bg-[#050505] fade-in border-t border-neutral-900">
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-2 uppercase tracking-widest">Thank You</h2>
+            <p class="text-neutral-500 text-sm md:text-base mb-8 max-w-md mx-auto px-4">I am actively seeking full time roles, contract work, and freelance opportunities. Let's build something great together.</p>
+            <p class="text-neutral-700 text-[10px] md:text-xs mt-10 md:mt-12">© 2026 Karan Bellaney. All renders and concepts belong to the artist.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        // Register GSAP plugins
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Initialize Lenis smooth scroll
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Synchronize ScrollTrigger with Lenis
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0);
+
+        // Staggered reveal animations for sections
+        document.querySelectorAll('.fade-in').forEach(el => {
+            gsap.fromTo(el, 
+                { opacity: 0, y: 40 },
+                { 
+                    opacity: 1, 
+                    y: 0, 
+                    duration: 0.8, 
+                    ease: "power2.out", 
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 85%",
+                        toggleActions: "play none none none"
+                    }
+                }
+            );
+        });
+
+        // Staggered hero text entrance
+        gsap.from(".header-content-wrapper > *", {
+            opacity: 0,
+            y: 30,
+            duration: 1,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.2
+        });
+
+        // 3D Card tilt effect on hover
+        document.querySelectorAll('.project-card').forEach(card => {
+            const container = card.querySelector('.carousel-container');
+            if (!container) return;
+            
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const xc = rect.width / 2;
+                const yc = rect.height / 2;
+                const dx = x - xc;
+                const dy = y - yc;
+                
+                gsap.to(container, {
+                    rotateY: (dx / xc) * 3, // Subtle 3 degree rotation
+                    rotateX: -(dy / yc) * 3,
+                    scale: 1.015,
+                    boxShadow: "0 25px 50px -12px rgba(0,0,0,0.8)",
+                    duration: 0.4,
+                    ease: "power2.out"
+                });
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                gsap.to(container, {
+                    rotateY: 0,
+                    rotateX: 0,
+                    scale: 1,
+                    boxShadow: "0 4px 30px rgba(0,0,0,0.5)",
+                    duration: 0.6,
+                    ease: "power2.out"
+                });
+            });
+        });
+
+        // Navigation smooth scrolling
+        document.querySelectorAll('.top-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                if (targetId && targetId.startsWith('#')) {
+                    const targetEl = document.querySelector(targetId);
+                    if (targetEl) {
+                        lenis.scrollTo(targetEl);
+                    }
+                }
+            });
+        });
+
+        // Scroll indicator click scroll
+        const scrollInd = document.querySelector('.scroll-indicator');
+        if (scrollInd) {
+            scrollInd.style.cursor = 'pointer';
+            scrollInd.addEventListener('click', () => {
+                lenis.scrollTo('#projects');
+            });
+        }
+
+        // Project filter logic with smooth transitions
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectsList = document.querySelectorAll('.project-card');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => { 
+                    b.classList.remove('text-white','bg-neutral-800'); 
+                    b.classList.add('text-neutral-400'); 
+                });
+                btn.classList.add('text-white','bg-neutral-800'); 
+                btn.classList.remove('text-neutral-400');
+                
+                const filterValue = btn.getAttribute('data-filter');
+                projectsList.forEach(proj => {
+                    gsap.to(proj, {
+                        opacity: 0,
+                        y: 15,
+                        duration: 0.25,
+                        onComplete: () => {
+                            if (filterValue === 'all' || proj.getAttribute('data-category') === filterValue) {
+                                proj.style.display = 'block';
+                                gsap.to(proj, {
+                                    opacity: 1,
+                                    y: 0,
+                                    duration: 0.4,
+                                    ease: "power2.out"
+                                });
+                            } else {
+                                proj.style.display = 'none';
+                            }
+                            ScrollTrigger.refresh(); // Refresh markers/trigger bounds
+                        }
+                    });
+                });
+            });
+        });
+
+        // Safe Video Play Helper
+        function safePlayVideo(videoElement) {
+            if (!videoElement) return;
+            try {
+                const playPromise = videoElement.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.warn("Video play prevented:", error.message);
+                    });
+                }
+            } catch (err) { console.warn(err); }
+        }
+
+        function pauseVideo(videoElement) {
+            if (!videoElement) return;
+            try { videoElement.pause(); } catch(e) {}
+        }
+
+        // Lazy load video sources when video enters viewport or is hovered
+        function loadVideoSources(video) {
+            if (video.dataset.loaded) return;
+            const sources = video.querySelectorAll('source');
+            let hasSources = false;
+            sources.forEach(source => {
+                const dataSrc = source.getAttribute('data-src');
+                if (dataSrc) {
+                    source.src = dataSrc;
+                    hasSources = true;
+                }
+            });
+            if (hasSources) {
+                video.load();
+                video.dataset.loaded = "true";
+            }
+        }
+
+        // Hero Video Autoplay (loads instantly since it uses compressed source directly)
+        const heroVideo = document.getElementById('hero-video');
+        if (heroVideo) {
+            setTimeout(() => {
+                safePlayVideo(heroVideo);
+            }, 100);
+        }
+
+        // Lazy-loading ScrollTrigger for videos
+        document.querySelectorAll('video').forEach(video => {
+            if (video.id === 'hero-video') return;
+            
+            ScrollTrigger.create({
+                trigger: video,
+                start: "top 120%", // Lazy load well before it becomes visible
+                onEnter: () => loadVideoSources(video),
+                once: true
+            });
+        });
+
+        // Hover Video Playback Logic
+        document.querySelectorAll('.group\\/video, .video-thumb-container').forEach(group => {
+            const video = group.querySelector('video');
+            if (!video) return;
+            
+            const handleStart = () => {
+                loadVideoSources(video);
+                safePlayVideo(video);
+            };
+            
+            group.addEventListener('mouseenter', handleStart);
+            group.addEventListener('mouseleave', () => pauseVideo(video));
+            group.addEventListener('touchstart', handleStart, {passive: true});
+            group.addEventListener('click', handleStart);
+        });
+
+        // Carousels control
+        document.querySelectorAll('.carousel-container').forEach(container => {
+            const track = container.querySelector('.carousel-track');
+            const prevBtn = container.querySelector('.prev-btn');
+            const nextBtn = container.querySelector('.next-btn');
+            const dots = container.querySelectorAll('.dot');
+            if (!track || !prevBtn || !nextBtn || dots.length === 0) return;
+            
+            // Load videos in carousel on hover
+            container.addEventListener('mouseenter', () => {
+                container.querySelectorAll('video').forEach(loadVideoSources);
+            }, { once: true });
+
+            const updateUI = () => {
+                const maxScroll = track.scrollWidth - track.clientWidth;
+                const pos = track.scrollLeft;
+                prevBtn.disabled = pos <= 0; 
+                nextBtn.disabled = Math.ceil(pos) >= maxScroll;
+                prevBtn.style.opacity = pos <= 0 ? '0.2' : '';
+                nextBtn.style.opacity = Math.ceil(pos) >= maxScroll ? '0.2' : '';
+                
+                const index = Math.round(pos / track.clientWidth);
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('bg-white', i === index);
+                    dot.classList.toggle('bg-white/40', i !== index);
+                });
+            };
+            
+            nextBtn.addEventListener('click', () => track.scrollBy({ left: track.clientWidth, behavior: 'smooth' }));
+            prevBtn.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth, behavior: 'smooth' }));
+            dots.forEach((dot, i) => dot.addEventListener('click', () => track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' })));
+            track.addEventListener('scroll', () => requestAnimationFrame(updateUI));
+            updateUI();
+            
+            window.addEventListener('resize', updateUI);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# System files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# IDE and editors
+.vscode/
+.idea/
+
+# Large raw source videos (will use compressed mp4/webm instead)
+01.mov
+01.txt
+
+# Local scripts
+compress_videos.ps1
