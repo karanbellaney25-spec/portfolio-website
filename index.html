@@ -1281,7 +1281,30 @@
 
         // Hover Video Playback Logic for Experience Thumbnails
         document.querySelectorAll('.video-thumb-container').forEach(group => {
-            const video = group.querySelector('video');
+            const videos = group.querySelectorAll('video');
+            if (videos.length === 0) return;
+            
+            const handleStart = () => {
+                videos.forEach(video => {
+                    loadVideoSources(video);
+                    safePlayVideo(video);
+                });
+            };
+            
+            group.addEventListener('mouseenter', handleStart);
+            group.addEventListener('mouseleave', () => {
+                videos.forEach(pauseVideo);
+            });
+            group.addEventListener('touchstart', handleStart, {passive: true});
+            group.addEventListener('click', handleStart);
+        });
+
+        // Playback logic for single video cards (e.g. Project 07: Procedural Honey Commercial)
+        document.querySelectorAll('figure.group\\/video').forEach(figure => {
+            // Check if it's inside a carousel-track; if so, the carousel logic handles it
+            if (figure.closest('.carousel-track')) return;
+            
+            const video = figure.querySelector('video');
             if (!video) return;
             
             const handleStart = () => {
@@ -1289,10 +1312,10 @@
                 safePlayVideo(video);
             };
             
-            group.addEventListener('mouseenter', handleStart);
-            group.addEventListener('mouseleave', () => pauseVideo(video));
-            group.addEventListener('touchstart', handleStart, {passive: true});
-            group.addEventListener('click', handleStart);
+            figure.addEventListener('mouseenter', handleStart);
+            figure.addEventListener('mouseleave', () => pauseVideo(video));
+            figure.addEventListener('touchstart', handleStart, {passive: true});
+            figure.addEventListener('click', handleStart);
         });
 
         // Carousels control with active-slide video autoplay
