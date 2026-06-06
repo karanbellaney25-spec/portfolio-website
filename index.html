@@ -48,15 +48,44 @@
             scrollbar-width: none;
         }
 
-        /* Project Card Transition & Perspective */
+        /* Project Card Transition & Perspective Fixes */
         .project-card {
             transition: opacity 0.4s ease, transform 0.4s ease;
-            perspective: 1000px;
-            transform-style: preserve-3d;
+            perspective: 1200px;
         }
         .carousel-container {
+            position: relative;
+            transition: box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+        .carousel-container:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(180, 160, 100, 0.35);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(180, 160, 100, 0.2);
+        }
+        /* Individual figure slides - receives 3D tilt */
+        .carousel-track figure {
             transform-style: preserve-3d;
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            backface-visibility: hidden;
+            transition: transform 0.1s ease;
+        }
+        /* Video opacity transition for premium cross-fade */
+        .carousel-track figure video, .video-thumb-container video {
+            opacity: 0;
+            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .carousel-track figure video.playing, .video-thumb-container video.playing {
+            opacity: 1;
+        }
+        /* Frosted Glass Navigation class */
+        .glass-nav {
+            background: rgba(10, 10, 10, 0.6) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(180, 160, 100, 0.2) !important;
         }
 
         /* ── Header-specific styles ── */
@@ -275,7 +304,7 @@
 <body class="antialiased selection:bg-cyan-500 selection:text-white bg-[#0a0a0a]">
 
     <!-- Fixed Top Navigation (Always on top) -->
-    <nav class="top-nav">
+    <nav class="top-nav glass-nav">
         <a href="#projects">Work</a>
         <a href="#top">About</a>
         <a href="#contact">Contact</a>
@@ -615,7 +644,7 @@
 
             <div class="carousel-container relative w-full group bg-[#0a0a0a]">
                 <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
-                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer" style="background-image: url('karan-bellaney-comp-beauty (1).jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                         <video poster="karan-bellaney-comp-beauty (1).jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
                             <source data-src="24Fps_2023_compressed.webm" type="video/webm">
                             <source data-src="24Fps_2023_compressed.mp4" type="video/mp4">
@@ -676,7 +705,7 @@
 
             <div class="carousel-container relative w-full group bg-[#0a0a0a]">
                 <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
-                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer" style="background-image: url('beauty.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                         <video poster="beauty.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
                             <source data-src="24Fps_2024_compressed.webm" type="video/webm">
                             <source data-src="24Fps_2024_compressed.mp4" type="video/mp4">
@@ -732,7 +761,7 @@
 
             <div class="carousel-container relative w-full group bg-[#0a0a0a]">
                 <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
-                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer" style="background-image: url('still_SS_3.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                         <video poster="still_SS_3.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
                             <source data-src="02_3_compressed.webm" type="video/webm">
                             <source data-src="02_3_compressed.mp4" type="video/mp4">
@@ -783,7 +812,7 @@
 
             <div class="carousel-container relative w-full group bg-[#0a0a0a]">
                 <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
-                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer" style="background-image: url('still.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                         <video poster="still.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
                             <source data-src="Breakdown_compressed.webm" type="video/webm">
                             <source data-src="Breakdown_compressed.mp4" type="video/mp4">
@@ -834,7 +863,7 @@
 
             <div class="carousel-container relative w-full group bg-[#0a0a0a]">
                 <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
-                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer" style="background-image: url('H_grasslands_still.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                         <video poster="H_grasslands_still.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
                             <source data-src="200_compressed.webm" type="video/webm">
                             <source data-src="200_compressed.mp4" type="video/mp4">
@@ -885,7 +914,7 @@
 
             <div class="carousel-container relative w-full group bg-[#0a0a0a]">
                 <div class="carousel-track flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
-                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer">
+                    <figure class="w-full flex-none snap-center relative aspect-video group/video cursor-pointer" style="background-image: url('04.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                         <video poster="04.jpg" preload="none" loop muted playsinline class="w-full h-full object-contain block bg-[#0a0a0a]">
                             <source data-src="01_1_compressed.webm" type="video/webm">
                             <source data-src="01_1_compressed.mp4" type="video/mp4">
@@ -1096,13 +1125,10 @@
             delay: 0.2
         });
 
-        // 3D Card tilt effect on hover
-        document.querySelectorAll('.project-card').forEach(card => {
-            const container = card.querySelector('.carousel-container');
-            if (!container) return;
-            
-            container.addEventListener('mousemove', (e) => {
-                const rect = container.getBoundingClientRect();
+        // 3D Card tilt effect on hover (isolated to individual slides inside the track to prevent overflow clipping)
+        document.querySelectorAll('.carousel-track figure, .video-thumb-container').forEach(slide => {
+            slide.addEventListener('mousemove', (e) => {
+                const rect = slide.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 const xc = rect.width / 2;
@@ -1110,23 +1136,22 @@
                 const dx = x - xc;
                 const dy = y - yc;
                 
-                gsap.to(container, {
-                    rotateY: (dx / xc) * 3, // Subtle 3 degree rotation
-                    rotateX: -(dy / yc) * 3,
-                    scale: 1.015,
-                    boxShadow: "0 25px 50px -12px rgba(0,0,0,0.8)",
-                    duration: 0.4,
+                gsap.to(slide, {
+                    rotateY: (dx / xc) * 5, // Subtle 5 degree rotation
+                    rotateX: -(dy / yc) * 5,
+                    transformPerspective: 1000,
+                    z: 15,
+                    duration: 0.35,
                     ease: "power2.out"
                 });
             });
             
-            container.addEventListener('mouseleave', () => {
-                gsap.to(container, {
+            slide.addEventListener('mouseleave', () => {
+                gsap.to(slide, {
                     rotateY: 0,
                     rotateX: 0,
-                    scale: 1,
-                    boxShadow: "0 4px 30px rgba(0,0,0,0.5)",
-                    duration: 0.6,
+                    z: 0,
+                    duration: 0.5,
                     ease: "power2.out"
                 });
             });
@@ -1192,22 +1217,28 @@
             });
         });
 
-        // Safe Video Play Helper
+        // Safe Video Play Helper with opacity fade-in
         function safePlayVideo(videoElement) {
             if (!videoElement) return;
             try {
                 const playPromise = videoElement.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => {
+                    playPromise.then(() => {
+                        videoElement.classList.add('playing'); // Trigger opacity transition
+                    }).catch(error => {
                         console.warn("Video play prevented:", error.message);
                     });
                 }
             } catch (err) { console.warn(err); }
         }
 
+        // Pause video with opacity fade-out
         function pauseVideo(videoElement) {
             if (!videoElement) return;
-            try { videoElement.pause(); } catch(e) {}
+            try {
+                videoElement.pause();
+                videoElement.classList.remove('playing'); // Trigger opacity transition back
+            } catch(e) {}
         }
 
         // Lazy load video sources when video enters viewport or is hovered
@@ -1248,8 +1279,8 @@
             });
         });
 
-        // Hover Video Playback Logic
-        document.querySelectorAll('.group\\/video, .video-thumb-container').forEach(group => {
+        // Hover Video Playback Logic for Experience Thumbnails
+        document.querySelectorAll('.video-thumb-container').forEach(group => {
             const video = group.querySelector('video');
             if (!video) return;
             
@@ -1264,7 +1295,7 @@
             group.addEventListener('click', handleStart);
         });
 
-        // Carousels control
+        // Carousels control with active-slide video autoplay
         document.querySelectorAll('.carousel-container').forEach(container => {
             const track = container.querySelector('.carousel-track');
             const prevBtn = container.querySelector('.prev-btn');
@@ -1272,10 +1303,30 @@
             const dots = container.querySelectorAll('.dot');
             if (!track || !prevBtn || !nextBtn || dots.length === 0) return;
             
-            // Load videos in carousel on hover
+            // Track hover state for the whole project container
             container.addEventListener('mouseenter', () => {
-                container.querySelectorAll('video').forEach(loadVideoSources);
-            }, { once: true });
+                container.dataset.hovered = "true";
+                const pos = track.scrollLeft;
+                const index = Math.round(pos / track.clientWidth);
+                const slides = track.querySelectorAll('figure');
+                
+                // Preload all slides in this carousel
+                slides.forEach(slide => {
+                    const vid = slide.querySelector('video');
+                    if (vid) loadVideoSources(vid);
+                });
+
+                // Autoplay the currently active slide's video
+                if (slides[index]) {
+                    const vid = slides[index].querySelector('video');
+                    if (vid) safePlayVideo(vid);
+                }
+            });
+
+            container.addEventListener('mouseleave', () => {
+                container.dataset.hovered = "false";
+                container.querySelectorAll('video').forEach(pauseVideo);
+            });
 
             const updateUI = () => {
                 const maxScroll = track.scrollWidth - track.clientWidth;
@@ -1289,6 +1340,19 @@
                 dots.forEach((dot, i) => {
                     dot.classList.toggle('bg-white', i === index);
                     dot.classList.toggle('bg-white/40', i !== index);
+                });
+
+                // Manage play/pause state for carousel videos based on active slide index
+                const slides = track.querySelectorAll('figure');
+                slides.forEach((slide, i) => {
+                    const video = slide.querySelector('video');
+                    if (!video) return;
+                    if (i !== index) {
+                        pauseVideo(video); // Pause other slides
+                    } else if (container.dataset.hovered === "true") {
+                        loadVideoSources(video);
+                        safePlayVideo(video); // Autoplay active slide on scroll
+                    }
                 });
             };
             
